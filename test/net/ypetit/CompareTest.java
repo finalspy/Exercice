@@ -3,8 +3,11 @@
  */
 package net.ypetit;
 
-import static org.junit.Assert.*;
+import java.io.File;
 
+import junit.framework.Assert;
+
+import org.jdom.Document;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -13,7 +16,7 @@ import org.junit.Test;
 
 /**
  * @author ypetit
- *
+ * 
  */
 public class CompareTest {
 
@@ -46,8 +49,18 @@ public class CompareTest {
 	}
 
 	@Test
-	public void test() {
-		fail("Not yet implemented");
+	public void loadFile() {
+		// Load an existing XML file to Document structure
+		Document document = Compare.loadFile(new File("resources/Before.xml"));
+		Assert.assertNotNull(document);
+
+		// Load an unexisting file
+		document = Compare.loadFile(new File("resources/unknown.txt"));
+		Assert.assertNull(document);
+
+		// Load not xml file
+		document = Compare.loadFile(new File("README"));
+		Assert.assertNull(document);
 	}
 
 }
