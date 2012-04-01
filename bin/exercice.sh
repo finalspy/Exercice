@@ -1,0 +1,1 @@
+java -cp ../dist/lib/exercice.jar net.ypetit.Compare
