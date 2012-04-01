@@ -4,11 +4,16 @@ This code is an implementation to solve the problem detailed below.
 
 How to use
 ==========
-
+from the project root folder
+cd to "bin" folder
+launch "./exercice.sh"
+(comming soon for windows OS : "./exercice.bat")
 
 How to build
 ============
-
+This project uses a simple ant build.
+Prerequisite : have ant installed and accessible from command promt (ie. ant binary se in the path).
+from the project root folder launch "ant"
 
 Problem to solve
 ================
