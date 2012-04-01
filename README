@@ -1,6 +1,6 @@
 Introduction
 ============
-
+This code is an implementation to solve the problem detailed below.
 
 How to use
 ==========
@@ -10,3 +10,49 @@ How to build
 ============
 
 
+Problem to solve
+================
+
+The problem to solve is the synchronization of two fileystem 
+directories. Supposing the original structure were:
+ 
+<tree name="root">
+<tree name="home">
+<tree name="joe">
+<file name="a.txt" modif-date="20120102T1030" size="5032"/>
+</tree>
+</tree>
+</tree>
+ 
+(which comes down to having one file /home/joe/a.txt). Now, if the 
+modified structure were something like:
+ 
+<tree name="root">
+<tree name="home">
+<tree name="joe">
+<file name="a.txt" modif-date="20120102T1030" size="5032"/>
+<file name="b.txt" modif-date="20120102T1030" size="1234"/>
+</tree>
+</tree>
+</tree>
+ 
+the diff between the two would be the new file /home/joe/b.txt.
+
+The action to be take is to create the /home/joe/b.txt using a 
+possibly mock implementation of the following Java interface :
+https://github.com/dtrott/fuse4j/blob/master/maven/fuse4j-core/src/main/java/fuse/Filesystem3.java.
+ 
+The goal of the exercise is to write a program in the Java language that 
+is able to detect diffs between such XML descriptions for a number of 
+common cases:
+* file update
+* new file
+* new directory
+* file rename
+* ...
+ 
+The provided tests will be automatically reproductible, prove the 
+correct working of the code and will be illustrative of the usage of the 
+software. The provided package should respect the standard Java layout 
+and have a command-line automatic build which can build the sources and 
+run tests.
