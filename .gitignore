@@ -1,0 +1,4 @@
+# Ignore eclipse config files to remain IDE independent 
+.classpath
+.project
+.settings/
