@@ -1,34 +1,67 @@
-<project name="Exercice" default="dist" basedir=".">
-  <description>Exercice</description>
-  <!-- set global properties for this build -->
-  <property name="src" location="src"/>
-  <property name="build" location="build"/>
-  <property name="dist"  location="dist"/>
+<project name="Exercice" default="runtests" basedir=".">
+	<description>Exercice</description>
+	<!-- set global properties for this build -->
+	<property name="src" location="src" />
+	<property name="build" location="build" />
+	<property name="dist" location="dist" />
 
-  <target name="init" depends="clean">
-    <!-- Create the time stamp -->
-    <tstamp/>
-    <!-- Create the build directory structure used by compile -->
-    <mkdir dir="${build}"/>
-  </target>
 
-  <target name="compile" depends="init"
-        description="compile the source " >
-    <!-- Compile the java code from ${src} into ${build} -->
-    <javac srcdir="${src}" destdir="${build}" includeantruntime="false" />
-  </target>
+	<target name="init" depends="clean">
+		<!-- Create the time stamp -->
+		<tstamp />
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${build}" />
+	</target>
 
-  <target name="dist" depends="compile"  description="generate the distribution" >
-    <!-- Create the distribution directory -->
-    <mkdir dir="${dist}/lib"/>
+	<target name="compile" depends="init" description="Compile the source ">
+		<!-- Compile the java code from ${src} into ${build} -->
+		<javac srcdir="${src}" destdir="${build}" includeantruntime="false" />
+	</target>
 
-    <!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
-    <jar jarfile="${dist}/lib/Exercice.jar" basedir="${build}"/>
-  </target>
+	<target name="dist" depends="compile" description="Generate the distribution">
+		<!-- Create the distribution directory -->
+		<mkdir dir="${dist}/lib" />
+		<!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
+		<jar jarfile="${dist}/lib/Exercice.jar" basedir="${build}" />
+	</target>
 
-  <target name="clean" description="clean up" >
-    <!-- Delete the ${build} and ${dist} directory trees -->
-    <delete dir="${build}"/>
-    <delete dir="${dist}"/>
-  </target>
+	<target name="compiletests" depends="dist" description="Compile the tests">
+		<mkdir dir="build/testcases" />
+		<javac srcdir="test" destdir="build/testcases" includeantruntime="false">
+			<classpath>
+				<pathelement location="build/lib/exercice.jar" />
+				<pathelement location="lib/junit-4.8.1.jar" />
+			</classpath>
+			<include name="**/*.java" />
+		</javac>
+	</target>
+
+	<target name="runtests" depends="compiletests" description="Run the tests and produces reports">
+		 <junit printsummary="true" failureproperty="junit.failure">
+
+				<classpath>
+					<pathelement path="${java.class.path}" />
+					<pathelement location="build/lib/exercice.jar" />
+					<pathelement location="lib/junit-4.8.1.jar" />
+					<pathelement location="build/testcases" />
+				</classpath>
+
+		      <batchtest todir="build">
+		        <fileset dir="test"/>
+		        <formatter type="xml"/>
+		      </batchtest>
+
+		    </junit>
+		    <junitreport todir="build">
+		      <fileset dir="build"/>
+		      <report todir="build/test-reports"/>
+		    </junitreport>
+		    <fail if="junit.failure" message="Unit test(s) failed.  See reports!"/>
+	</target>
+
+	<target name="clean" description="clean up">
+		<!-- Delete the ${build} and ${dist} directory trees -->
+		<delete dir="${build}" />
+		<delete dir="${dist}" />
+	</target>
 </project>
