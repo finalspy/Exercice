@@ -102,18 +102,19 @@ Technical Specifications
   This method will allow us to store elements in a map as the filesystem won't allow many files/folders with the same path.
   If not it will drove us into problems because Map structure doesn't allow duplicate key.
   Then we'll have to iterate over that map for the core treatment (ie differences detection).	
+  (Note: all classes are made public static for easy testing).
   
   Next steps
   ----------
   Benchmark the code with huge amount of data and complex structures.
-  Find for ways to improve algorithm or parallelize treatment.
+  Find some ways to improve algorithm or parallelize treatment.
   
   
 Todo
 ====
 // TODO check program usage
-// TODO process to detect differences (additions, modifications, deletions)
 // TODO render results
+Mavenize project 
 Add mocking framework for better unit testing.
 Add a logger system.
 Refactor the ant build

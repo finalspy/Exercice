@@ -5,6 +5,7 @@ package net.ypetit;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -72,11 +73,11 @@ public class CompareTest {
 		Document document = Compare.loadFile(beforeFile);
 		Assert.assertNotNull(document);
 
-		// Load an unexisting file
+		// Load a not existing file
 		document = Compare.loadFile(unknownFile);
 		Assert.assertNull(document);
 
-		// Load not xml file
+		// Load not XML file
 		document = Compare.loadFile(notXMLFile);
 		Assert.assertNull(document);
 	}
@@ -107,7 +108,6 @@ public class CompareTest {
 	@Test
 	public void asMap() {
 		// TODO mock getFullPath method
-		// Load an existing XML file to Document structure
 		List<Element> elementsList = new ArrayList<Element>();
 		elementsList.add(new Element("tree").setAttribute("name", "home"));
 		elementsList.add(new Element("file").setAttribute("name", "a.txt"));
@@ -125,18 +125,73 @@ public class CompareTest {
 
 	@Test
 	public void getFullPath() {
-		// Load an existing XML file to Document structure
+		// Initialize some elements
 		Element elementA = new Element("file").setAttribute("name", "a.txt");
 		Element elementB = new Element("file").setAttribute("name", "b.txt");
 		Element elementHome = new Element("tree").setAttribute("name", "home");
 		elementHome.addContent(elementA).addContent(elementB);
 
+		// Extract from real Element
 		String resultKey = Compare.getFullPath(elementB);
 		Assert.assertNotNull(resultKey);
 		Assert.assertEquals("home/b.txt", resultKey);
 
-		// Convert a null list
+		// Extract from null String
 		resultKey = Compare.getFullPath(null);
 		Assert.assertNull(resultKey);
+	}
+
+	@Test
+	public void findDifferencesAdded() {
+		// Initialize some elements
+		Element elementA = new Element("file").setAttribute("name", "a.txt").setAttribute("size", "5032").setAttribute("modif-date", "20120102T1030");
+		Element elementB = new Element("file").setAttribute("name", "b.txt").setAttribute("size", "1234").setAttribute("modif-date", "20120102T1030");
+		Element elementHome = new Element("tree").setAttribute("name", "home");
+		elementHome.addContent(elementA).addContent(elementB);
+		Map<String, Element> input = new HashMap<String, Element>();
+		input.put("home", elementHome);
+		input.put("home/a.txt", elementA);
+		Map<String, Element> output = new HashMap<String, Element>();
+		output.put("home", elementHome);
+		output.put("home/a.txt", elementA);
+		output.put("home/b.txt", elementB);
+		Compare.findDifferences(input, output);
+	}
+	
+	@Test
+	public void findDifferencesDeleted() {
+		// Initialize some elements
+		Element elementA = new Element("file").setAttribute("name", "a.txt").setAttribute("size", "5032").setAttribute("modif-date", "20120102T1030");
+		Element elementB = new Element("file").setAttribute("name", "b.txt").setAttribute("size", "1234").setAttribute("modif-date", "20120102T1030");
+		Element elementHome = new Element("tree").setAttribute("name", "home");
+		elementHome.addContent(elementA).addContent(elementB);
+		Map<String, Element> input = new HashMap<String, Element>();
+		input.put("home", elementHome);
+		input.put("home/a.txt", elementA);
+		input.put("home/b.txt", elementB);
+		Map<String, Element> output = new HashMap<String, Element>();
+		output.put("home", elementHome);
+		output.put("home/a.txt", elementA);
+		Compare.findDifferences(input, output);
+	}
+	
+	@Test
+	public void findDifferencesModified() {
+		// Initialize some elements
+		Element elementA = new Element("file").setAttribute("name", "a.txt").setAttribute("size", "5032").setAttribute("modif-date", "20120102T1030");
+		Element elementA2 = new Element("file").setAttribute("name", "a.txt").setAttribute("size", "5031").setAttribute("modif-date", "20120102T1030");
+		Element elementB = new Element("file").setAttribute("name", "b.txt").setAttribute("size", "1234").setAttribute("modif-date", "20120102T1030");
+		Element elementB2 = new Element("file").setAttribute("name", "b.txt").setAttribute("size", "1234").setAttribute("modif-date", "20120402T1030");
+		Element elementHome = new Element("tree").setAttribute("name", "home");
+		elementHome.addContent(elementA).addContent(elementB);
+		Map<String, Element> input = new HashMap<String, Element>();
+		input.put("home", elementHome);
+		input.put("home/a.txt", elementA);
+		input.put("home/b.txt", elementB);
+		Map<String, Element> output = new HashMap<String, Element>();
+		output.put("home", elementHome);
+		output.put("home/a.txt", elementA2);
+		output.put("home/b.txt", elementB2);
+		Compare.findDifferences(input, output);
 	}
 }

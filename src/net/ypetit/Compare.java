@@ -27,17 +27,19 @@ public class Compare {
 		System.out.println("Compare launched !");
 		// TODO check program usage
 		// load input files
-		Document beforeDocument = Compare.loadFile(new File("resources/Before.xml"));
-		Document afterDocument = Compare.loadFile(new File("resources/After.xml"));
+		Document beforeDocument = Compare.loadFile(new File(
+				"resources/Before.xml"));
+		Document afterDocument = Compare.loadFile(new File(
+				"resources/After.xml"));
 		// extract elements to treat (as List by default)
 		List<Element> beforeList = Compare.extractData(beforeDocument);
 		List<Element> afterList = Compare.extractData(afterDocument);
 		// convert lists to map with useful keys.
-		Map<String,Element> beforeMap = Compare.asMap(beforeList);
-		Map<String,Element> afterMap = Compare.asMap(afterList);
+		Map<String, Element> beforeMap = Compare.asMap(beforeList);
+		Map<String, Element> afterMap = Compare.asMap(afterList);
 		// TODO process to detect differences (additions, modifications,
 		// deletions)
-
+		Compare.findDifferences(beforeMap, afterMap);
 		// TODO render results
 		System.out.println("Compare exited !");
 	}
@@ -85,7 +87,6 @@ public class Compare {
 				Element racine = treeFileDocument.getRootElement();
 				XPath xpathFiles = XPath.newInstance("//file|//tree");
 				result = xpathFiles.selectNodes(racine);
-				System.out.println(result);
 			} catch (JDOMException e) {
 				System.out.println("Error parsing JDOM " + e.getMessage());
 				e.printStackTrace();
@@ -120,21 +121,71 @@ public class Compare {
 		}
 		return filesMap;
 	}
-	
+
 	/**
+	 * This method is used to extract full path from an element. It uses a
+	 * concatenation of each ancestor "name" attribute value and the current
+	 * element "name" attribute separated with FILE_SEPARATOR.
 	 * 
-	 * @param node
-	 * @return
+	 * @param element
+	 *            The element to extract the path from.
+	 * @return a String representing the extracted path.
 	 */
-	public static String getFullPath(Element node) {
+	public static String getFullPath(Element element) {
 		String fullPath = null;
-		while (node != null) {
-			if(node.getName().equals("tree"))
-				fullPath = node.getAttributeValue("name") + PATH_SEPARATOR + fullPath;
-			if(node.getName().equals("file"))
-				fullPath = node.getAttributeValue("name");
-			node = node.getParentElement();
+		while (element != null) {
+			if (element.getName().equals("tree"))
+				fullPath = element.getAttributeValue("name") + PATH_SEPARATOR
+						+ fullPath;
+			if (element.getName().equals("file"))
+				fullPath = element.getAttributeValue("name");
+			element = element.getParentElement();
 		}
 		return fullPath;
 	}
+
+	/**
+	 * This method contains the core treatment to find differences between two
+	 * map containing file and tree elements extracted from an XML file
+	 * representing a file system structure.
+	 * 
+	 * @param input
+	 *            the first Map to compare.
+	 * @param output
+	 *            the second Map to compare
+	 */
+	public static void findDifferences(Map<String, Element> input,
+			Map<String, Element> output) {
+		// TODO add some output object
+		// TODO case no attribute name/size/modif-date (validate file structure before ?)
+		Element value = null;
+		String key = null;
+		for (Map.Entry<String, Element> entry : output.entrySet()) {
+			key = entry.getKey();
+			value = entry.getValue();
+			if (!input.containsKey(key)) {
+				// FIXME case no attribute name
+				System.out.println("ADDED : " + value.getName() + " "
+						+ value.getAttributeValue("name"));
+			} else {
+				// compare size and name for a hash
+				// FIXME case no attribute name
+				if ("file".equals(value.getName())) {
+					// FIXME case no attribute size or modif-date 
+					if (!value.getAttributeValue("size").equals(input.get(key).getAttributeValue("size"))
+							|| !value.getAttributeValue("modif-date").equals(input.get(key).getAttributeValue("modif-date"))) {
+						System.out.println("CHANGED : " + value.getName() + " " + value.getAttributeValue("name"));
+					}
+				}
+				input.remove(key);
+			}
+		}
+		for (Map.Entry<String, Element> entry : input.entrySet()) {
+			value = entry.getValue();
+			// FIXME case no attribute name
+			System.out.println("DELETED : " + value.getName() + " "
+					+ value.getAttributeValue("name"));
+		}
+	}
+
 }
