@@ -15,7 +15,13 @@
 
 	<target name="compile" depends="init" description="Compile the source ">
 		<!-- Compile the java code from ${src} into ${build} -->
-		<javac srcdir="${src}" destdir="${build}" includeantruntime="false" />
+		<javac srcdir="${src}" destdir="${build}" includeantruntime="false">
+			<classpath>
+				<pathelement location="lib/junit-4.8.1.jar" />
+				<pathelement location="lib/jdom-1.1.3.jar" />
+				<pathelement location="lib/jaxen.jar" />
+			</classpath>
+		</javac>
 	</target>
 
 	<target name="dist" depends="compile" description="Generate the distribution">
@@ -29,36 +35,38 @@
 		<mkdir dir="build/testcases" />
 		<javac srcdir="test" destdir="build/testcases" includeantruntime="false">
 			<classpath>
-				<pathelement location="build/lib/exercice.jar" />
+				<pathelement location="${dist}/lib/exercice.jar" />
 				<pathelement location="lib/junit-4.8.1.jar" />
 				<pathelement location="lib/jdom-1.1.3.jar" />
+				<pathelement location="lib/jaxen.jar" />
 			</classpath>
 			<include name="**/*.java" />
 		</javac>
 	</target>
 
 	<target name="runtests" depends="compiletests" description="Run the tests and produces reports">
-		 <junit printsummary="true" failureproperty="junit.failure">
+		<junit printsummary="true" failureproperty="junit.failure">
 
-				<classpath>
-					<pathelement path="${java.class.path}" />
-					<pathelement location="build/lib/exercice.jar" />
-					<pathelement location="lib/junit-4.8.1.jar" />
-					<pathelement location="lib/jdom-1.1.3.jar" />
-					<pathelement location="build/testcases" />
-				</classpath>
+			<classpath>
+				<pathelement path="${java.class.path}" />
+				<pathelement location="${dist}/lib/exercice.jar" />
+				<pathelement location="lib/junit-4.8.1.jar" />
+				<pathelement location="lib/jdom-1.1.3.jar" />
+				<pathelement location="lib/jaxen.jar" />
+				<pathelement location="build/testcases" />
+			</classpath>
 
-		      <batchtest todir="build">
-		        <fileset dir="test"/>
-		        <formatter type="xml"/>
-		      </batchtest>
+			<batchtest todir="build">
+				<fileset dir="test"/>
+				<formatter type="xml"/>
+			</batchtest>
 
-		    </junit>
-		    <junitreport todir="build">
-		      <fileset dir="build"/>
-		      <report todir="build/test-reports"/>
-		    </junitreport>
-		    <fail if="junit.failure" message="Unit test(s) failed.  See reports!"/>
+		</junit>
+		<junitreport todir="build">
+			<fileset dir="build"/>
+			<report todir="build/test-reports"/>
+		</junitreport>
+		<fail if="junit.failure" message="Unit test(s) failed.  See reports!"/>
 	</target>
 
 	<target name="clean" description="clean up">

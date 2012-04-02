@@ -2,10 +2,13 @@ package net.ypetit;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import org.jdom.Document;
+import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+import org.jdom.xpath.XPath;
 
 public class Compare {
 
@@ -17,8 +20,11 @@ public class Compare {
 		System.out.println("Compare launched !");
 		// TODO check program usage
 		// TODO load input files 
+		Document before = loadFile(new File("resources/Before.xml"));
+		Document after = loadFile(new File("resources/After.xml"));
 		// TODO process to detect differences (additions, modifications, deletions)
 		// TODO render results
+		System.out.println("Compare exited !");
 	}
 	
 	/**
@@ -39,6 +45,26 @@ public class Compare {
 			e.printStackTrace();
 		}
 		return document;
+	}
+
+	public static List<Element> extractData(Document treeFileDocument) {
+		List<Element> result = null;
+		if (null != treeFileDocument) {
+			try {
+				Element racine = treeFileDocument.getRootElement();
+
+				 XPath xpathFiles = XPath.newInstance("//file|//tree");
+				 result = xpathFiles.selectNodes(racine);
+				 System.out.println(result);
+			} catch (JDOMException e) {
+				System.out.println("Error parsing JDOM " + e.getMessage());
+				e.printStackTrace();
+			} catch (IllegalStateException e) {
+				System.out.println("Error parsing JDOM " + e.getMessage());
+				e.printStackTrace();
+			}
+		}
+		return result;
 	}
 
 }

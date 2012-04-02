@@ -4,10 +4,15 @@
 package net.ypetit;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 import junit.framework.Assert;
 
 import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -20,11 +25,25 @@ import org.junit.Test;
  */
 public class CompareTest {
 
+	private static File beforeFile;
+	private static File unknownFile;
+	private static File notXMLFile;
+	private static File otherFile;
+
+
 	/**
 	 * @throws java.lang.Exception
 	 */
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+		// Initialize files
+		beforeFile = new File("resources/Before.xml");
+		if (!beforeFile.exists()) {
+			throw new Exception("Missing resource file for tests!");
+		}
+		unknownFile = new File("resources/unknown.txt");
+		notXMLFile = new File("README");
+		otherFile = new File("build.xml");
 	}
 
 	/**
@@ -39,6 +58,7 @@ public class CompareTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
+
 	}
 
 	/**
@@ -51,16 +71,36 @@ public class CompareTest {
 	@Test
 	public void loadFile() {
 		// Load an existing XML file to Document structure
-		Document document = Compare.loadFile(new File("resources/Before.xml"));
+		Document document = Compare.loadFile(beforeFile);
 		Assert.assertNotNull(document);
 
 		// Load an unexisting file
-		document = Compare.loadFile(new File("resources/unknown.txt"));
+		document = Compare.loadFile(unknownFile);
 		Assert.assertNull(document);
 
 		// Load not xml file
-		document = Compare.loadFile(new File("README"));
+		document = Compare.loadFile(notXMLFile);
 		Assert.assertNull(document);
+	}
+
+	@Test
+	public void extractData() {
+		List<Element> elements = null;
+		// extract elements of type tree/file
+		elements = Compare.extractData(Compare.loadFile(beforeFile));
+		Assert.assertNotNull(elements);
+		Assert.assertEquals(4, elements.size());
+		// xml document not containing tree or file
+		elements = Compare.extractData(Compare.loadFile(otherFile));
+		Assert.assertNotNull(elements);
+		Assert.assertEquals(0, elements.size());
+		// empty document
+		elements = Compare.extractData(new Document());
+		Assert.assertNull(elements);
+		// null document
+		Document nullDocument = null;
+		elements = Compare.extractData(nullDocument);
+		Assert.assertNull(elements);
 	}
 
 }
