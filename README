@@ -2,18 +2,21 @@ Introduction
 ============
 This code is an implementation to solve the problem detailed below.
 
-How to use
-==========
-from the project root folder
-cd to "bin" folder
-launch "./exercice.sh"
-(comming soon for windows OS : "./exercice.bat")
 
 How to build
 ============
-This project uses a simple ant build.
-Prerequisite : have ant installed and accessible from command promt (ie. ant binary se in the path).
-from the project root folder launch "ant"
+This project uses a simple maven build.
+Prerequisite : have maven installed and accessible from command prompt.
+from the project root folder launch "mvn clean install"
+
+
+How to use
+==========
+Run the following command against the generated jar :
+java -jar Exercice-0.1.1-SNAPSHOT-jar-with-dependencies.jar [firstFile.xml] [secondFile.xml]
+(or from project sources , cd to bin directory and launch ./exercice.sh )
+
+
 
 Problem to solve
 ================

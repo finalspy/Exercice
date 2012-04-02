@@ -1,1 +1,1 @@
-java -cp ../dist/lib/exercice.jar net.ypetit.Compare
+java -jar ../target/Exercice-0.1.1-SNAPSHOT-jar-with-dependencies.jar ../src/main/resources/Before.xml ../src/main/resources/After.xml

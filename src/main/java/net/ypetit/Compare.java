@@ -27,8 +27,8 @@ public class Compare {
         System.out.println("Compare launched !");
         // TODO check program usage
         // load input files
-        Document beforeDocument = Compare.loadFile(new File("Before.xml"));
-        Document afterDocument = Compare.loadFile(new File("After.xml"));
+        Document beforeDocument = Compare.loadFile(new File(args[0]));
+        Document afterDocument = Compare.loadFile(new File(args[1]));
         // extract elements to treat (as List by default)
         List<Element> beforeList = Compare.extractData(beforeDocument);
         List<Element> afterList = Compare.extractData(afterDocument);
