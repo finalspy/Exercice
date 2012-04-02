@@ -13,24 +13,36 @@ import org.jdom.xpath.XPath;
 public class Compare {
 
 	/**
-	 * The goal of this project is to compare two XML files describing file systems structures and detects diffs.
+	 * The goal of this project is to compare two XML files describing file
+	 * systems structures and detects diffs.
+	 * 
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		System.out.println("Compare launched !");
 		// TODO check program usage
-		// TODO load input files 
-		Document before = loadFile(new File("resources/Before.xml"));
-		Document after = loadFile(new File("resources/After.xml"));
-		// TODO process to detect differences (additions, modifications, deletions)
+		// load input files
+		Document beforeDocument = loadFile(new File("resources/Before.xml"));
+		Document afterDocument = loadFile(new File("resources/After.xml"));
+		// TODO extract elements to treat (as List by default)
+		List<Element> beforeList = extractData(beforeDocument);
+		List<Element> afterList = extractData(afterDocument);
+		// TODO convert lists to map with useful keys.
+
+		// TODO process to detect differences (additions, modifications,
+		// deletions)
+
 		// TODO render results
 		System.out.println("Compare exited !");
 	}
-	
+
 	/**
 	 * This method is used to read an xml file and load a Dom Document from it.
-	 * @param path Path of the xml file we want to load.
-	 * @return
+	 * 
+	 * @param path
+	 *            Path of the xml file we want to load.
+	 * @return a Dom Document representation of the input file, or null if file
+	 *         hasn't been loaded properly.
 	 */
 	public static Document loadFile(File path) {
 		Document document = null;
@@ -47,15 +59,27 @@ public class Compare {
 		return document;
 	}
 
+	/**
+	 * This method is used to extract as a List of Element Dom object the tags
+	 * to analyze in the document passed as a parameter. For the purpose of this
+	 * exercise the Elements are tree and file tags.
+	 * 
+	 * @param treeFileDocument
+	 *            the Dom Document to parse to extract targeted Elements.
+	 * @return a List of Element objects matching the Xpath expression
+	 *         //file|//tree (which mean any file or tree tag at any level in
+	 *         the document tree), or return null if there was a problem loading
+	 *         or parsing the input Document.
+	 */
+	@SuppressWarnings("unchecked")
 	public static List<Element> extractData(Document treeFileDocument) {
 		List<Element> result = null;
 		if (null != treeFileDocument) {
 			try {
 				Element racine = treeFileDocument.getRootElement();
-
-				 XPath xpathFiles = XPath.newInstance("//file|//tree");
-				 result = xpathFiles.selectNodes(racine);
-				 System.out.println(result);
+				XPath xpathFiles = XPath.newInstance("//file|//tree");
+				result = xpathFiles.selectNodes(racine);
+				System.out.println(result);
 			} catch (JDOMException e) {
 				System.out.println("Error parsing JDOM " + e.getMessage());
 				e.printStackTrace();

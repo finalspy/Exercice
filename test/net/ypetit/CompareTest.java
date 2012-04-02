@@ -90,13 +90,16 @@ public class CompareTest {
 		elements = Compare.extractData(Compare.loadFile(beforeFile));
 		Assert.assertNotNull(elements);
 		Assert.assertEquals(4, elements.size());
+		
 		// xml document not containing tree or file
 		elements = Compare.extractData(Compare.loadFile(otherFile));
 		Assert.assertNotNull(elements);
 		Assert.assertEquals(0, elements.size());
+		
 		// empty document
 		elements = Compare.extractData(new Document());
 		Assert.assertNull(elements);
+		
 		// null document
 		Document nullDocument = null;
 		elements = Compare.extractData(nullDocument);

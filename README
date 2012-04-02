@@ -61,3 +61,55 @@ correct working of the code and will be illustrative of the usage of the
 software. The provided package should respect the standard Java layout 
 and have a command-line automatic build which can build the sources and 
 run tests.
+
+
+Technical Specifications
+========================
+  
+  Program inputs :
+  ----------------
+  2 distinct xml files representing a filesystem structure with tree tags (for directories) and file tags (for files). 
+  
+  Program output :
+  ----------------
+  A data structure identifying differences between the two filesystem structures provided as xml entry point files.
+  
+  Development process :
+  ---------------------
+  First we'll be writing this document and also add some commentary in empty code structures as //TODO items. 
+  Then for each point we'll write the appropriate unit test for Junit.
+  And after we'll implement the method that satisfies the preceding tests to have them all executed with success.
+  At this point some code refactoring could be done on existing code and test should still execute with success. 
+  The global development process will be iterative.
+  Even once the final goal is achieved, we'll have to review the work we've done to determine if there are some way to improve it or add missing functionnalities.
+  
+  Problematic
+  -----------
+  At first sight the problematic is quite simple. 
+  We need to detect added or deleted tags, and those for which the attributes are different.
+  * Possible Solution :
+      - load files as Dom Documents to manipulate them easily.
+      - list all elements that should be tested.
+      - for each element :
+          _ test if present in the other document, if missing then file/tree is only present on the analyzed document (ie added) => took action to save this difference for the final report. 
+          _ test if present but with different attributes (ie modified),  => took action to save this difference for the final report. 
+          _ if present delete the Element from the other document if also present whether or not it has different attributes.
+          _ list all remaining elements in the other document. Due to the receeding step that means thos files aren't present in the first document (ie deleted from it) => took action to save this difference for the final report. 
+      - parse the result object to summarize all the detected changes.
+  This solution raises one question : how to identify elements selected on one document to search for it on another.
+  We propose to store each references in a map. The key would be a concatenation of the Element absolute path constructed using a path separator, ancestors @name attribute, and the element name, and the value the Element object it self.
+  eg: <root><tree name="home"><tree name="joe"><file name="a.txt" date... /></tree></tree></root> would add the entry : ["/home/joe/a.txt",Element] 
+  Then we'll have to iterate over that map for the core treatment (ie differences detection).	
+  
+Todo
+====
+// TODO check program usage
+// TODO load input files from parameters
+// TODO process to detect differences (additions, modifications, deletions)
+// TODO render results
+Add a logger system.
+Refactor the ant build
+(Duplicate the project for a maven build)
+Generate javadoc
+
+
