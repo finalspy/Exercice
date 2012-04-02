@@ -85,8 +85,10 @@ Technical Specifications
   
   Problematic
   -----------
+  
   At first sight the problematic is quite simple. 
   We need to detect added or deleted tags, and those for which the attributes are different.
+  
   * Possible Solution :
       - load files as Dom Documents to manipulate them easily.
       - list all elements that should be tested.
@@ -103,6 +105,10 @@ Technical Specifications
   If not it will drove us into problems because Map structure doesn't allow duplicate key.
   Then we'll have to iterate over that map for the core treatment (ie differences detection).	
   (Note: all classes are made public static for easy testing).
+  
+  Tracking of renaming : 
+  This first version uses path and file name to identify files.
+  A better way to process would be to have the file hash value in the xml description, thus we would be able to track simple renaming and make a distinction between them and add/delete of two separate files.
   
   Next steps
   ----------
