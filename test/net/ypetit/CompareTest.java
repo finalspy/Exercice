@@ -106,20 +106,37 @@ public class CompareTest {
 
 	@Test
 	public void asMap() {
+		// TODO mock getFullPath method
 		// Load an existing XML file to Document structure
 		List<Element> elementsList = new ArrayList<Element>();
-		elementsList.add(new Element("tree"));
-		elementsList.add(new Element("file"));
-		elementsList.add(new Element("file"));
+		elementsList.add(new Element("tree").setAttribute("name", "home"));
+		elementsList.add(new Element("file").setAttribute("name", "a.txt"));
+		elementsList.add(new Element("file").setAttribute("name", "b.txt"));
 		Map<String, Element> elementsMap = Compare.asMap(elementsList);
 		Assert.assertNotNull(elementsMap);
-		// Expected 2 as Map doesn't accept duplicte keys
-		// TODO once fully implemented two element of same name will result in different map entries as the key would be based on ancestors name attribute.
-		Assert.assertEquals(2, elementsMap.size());
-
+		// Expected 3 not 2 as Map doesn't accept duplicate keys but two element
+		// of same name will result in different map entries as the key would be
+		// based on ancestors name attribute.
+		Assert.assertEquals(3, elementsMap.size());
 		// Convert a null list
 		elementsMap = Compare.asMap(null);
 		Assert.assertNull(elementsMap);
 	}
 
+	@Test
+	public void getFullPath() {
+		// Load an existing XML file to Document structure
+		Element elementA = new Element("file").setAttribute("name", "a.txt");
+		Element elementB = new Element("file").setAttribute("name", "b.txt");
+		Element elementHome = new Element("tree").setAttribute("name", "home");
+		elementHome.addContent(elementA).addContent(elementB);
+
+		String resultKey = Compare.getFullPath(elementB);
+		Assert.assertNotNull(resultKey);
+		Assert.assertEquals("home/b.txt", resultKey);
+
+		// Convert a null list
+		resultKey = Compare.getFullPath(null);
+		Assert.assertNull(resultKey);
+	}
 }

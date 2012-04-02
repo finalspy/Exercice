@@ -15,6 +15,8 @@ import org.jdom.xpath.XPath;
 
 public class Compare {
 
+	private static final String PATH_SEPARATOR = "/";
+
 	/**
 	 * The goal of this project is to compare two XML files describing file
 	 * systems structures and detects diffs.
@@ -25,13 +27,14 @@ public class Compare {
 		System.out.println("Compare launched !");
 		// TODO check program usage
 		// load input files
-		Document beforeDocument = loadFile(new File("resources/Before.xml"));
-		Document afterDocument = loadFile(new File("resources/After.xml"));
-		// TODO extract elements to treat (as List by default)
-		List<Element> beforeList = extractData(beforeDocument);
-		List<Element> afterList = extractData(afterDocument);
-		// TODO convert lists to map with useful keys.
-
+		Document beforeDocument = Compare.loadFile(new File("resources/Before.xml"));
+		Document afterDocument = Compare.loadFile(new File("resources/After.xml"));
+		// extract elements to treat (as List by default)
+		List<Element> beforeList = Compare.extractData(beforeDocument);
+		List<Element> afterList = Compare.extractData(afterDocument);
+		// convert lists to map with useful keys.
+		Map<String,Element> beforeMap = Compare.asMap(beforeList);
+		Map<String,Element> afterMap = Compare.asMap(afterList);
 		// TODO process to detect differences (additions, modifications,
 		// deletions)
 
@@ -110,11 +113,28 @@ public class Compare {
 			Element noeudCourant = null;
 			while (iter.hasNext()) {
 				noeudCourant = iter.next();
-				// TODO extract key from Element parent @name concatenation to
+				// extract key from Element parent @name concatenation to
 				// reflect filesystem hierarchy
-				filesMap.put(noeudCourant.getName(), noeudCourant);
+				filesMap.put(getFullPath(noeudCourant), noeudCourant);
 			}
 		}
 		return filesMap;
+	}
+	
+	/**
+	 * 
+	 * @param node
+	 * @return
+	 */
+	public static String getFullPath(Element node) {
+		String fullPath = null;
+		while (node != null) {
+			if(node.getName().equals("tree"))
+				fullPath = node.getAttributeValue("name") + PATH_SEPARATOR + fullPath;
+			if(node.getName().equals("file"))
+				fullPath = node.getAttributeValue("name");
+			node = node.getParentElement();
+		}
+		return fullPath;
 	}
 }

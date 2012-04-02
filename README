@@ -112,9 +112,9 @@ Technical Specifications
 Todo
 ====
 // TODO check program usage
-// TODO load input files from parameters
 // TODO process to detect differences (additions, modifications, deletions)
 // TODO render results
+Add mocking framework for better unit testing.
 Add a logger system.
 Refactor the ant build
 (Duplicate the project for a maven build)
