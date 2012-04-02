@@ -99,7 +99,15 @@ Technical Specifications
   This solution raises one question : how to identify elements selected on one document to search for it on another.
   We propose to store each references in a map. The key would be a concatenation of the Element absolute path constructed using a path separator, ancestors @name attribute, and the element name, and the value the Element object it self.
   eg: <root><tree name="home"><tree name="joe"><file name="a.txt" date... /></tree></tree></root> would add the entry : ["/home/joe/a.txt",Element] 
+  This method will allow us to store elements in a map as the filesystem won't allow many files/folders with the same path.
+  If not it will drove us into problems because Map structure doesn't allow duplicate key.
   Then we'll have to iterate over that map for the core treatment (ie differences detection).	
+  
+  Next steps
+  ----------
+  Benchmark the code with huge amount of data and complex structures.
+  Find for ways to improve algorithm or parallelize treatment.
+  
   
 Todo
 ====

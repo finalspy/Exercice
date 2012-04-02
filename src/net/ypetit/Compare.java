@@ -2,7 +2,10 @@ package net.ypetit;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.jdom.Document;
 import org.jdom.Element;
@@ -91,4 +94,27 @@ public class Compare {
 		return result;
 	}
 
+	/**
+	 * This method is used to convert a List of Element objects to a Map of
+	 * <String,Element>.
+	 * 
+	 * @param elements
+	 *            List of Element object to convert to a map.
+	 * @return a Map of String as key and Element as value.
+	 */
+	public static Map<String, Element> asMap(List<Element> elements) {
+		Map<String, Element> filesMap = null;
+		if (null != elements) {
+			filesMap = new HashMap<String, Element>();
+			Iterator<Element> iter = elements.iterator();
+			Element noeudCourant = null;
+			while (iter.hasNext()) {
+				noeudCourant = iter.next();
+				// TODO extract key from Element parent @name concatenation to
+				// reflect filesystem hierarchy
+				filesMap.put(noeudCourant.getName(), noeudCourant);
+			}
+		}
+		return filesMap;
+	}
 }
