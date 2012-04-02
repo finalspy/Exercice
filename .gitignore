@@ -1,7 +1,7 @@
 # Ignore eclipse config files to remain IDE independent 
 .classpath
 .project
+.checkstyle
 .settings/
 # Ignore build directory
-build/
-dist/
+target/

@@ -36,13 +36,13 @@ public class CompareTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		// Initialize files
-		beforeFile = new File("resources/Before.xml");
+		beforeFile = new File("src/test/resources/Before.xml");
 		if (!beforeFile.exists()) {
 			throw new Exception("Missing resource file for tests!");
 		}
-		unknownFile = new File("resources/unknown.txt");
+		unknownFile = new File("unknown.txt");
 		notXMLFile = new File("README");
-		otherFile = new File("build.xml");
+		otherFile = new File("pom.xml");
 	}
 
 	/**
