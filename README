@@ -117,17 +117,17 @@ Technical Specifications
   ----------
   Benchmark the code with huge amount of data and complex structures.
   Find some ways to improve algorithm or parallelize treatment.
+  JDom is a DOM API that won't scale well on large documents because it loads the whole document and consumes memory.
+  Alternatives are Sax parser API like Stax, JAXB ...
+  If XML chunks can be managed to keep small size maybe parallelized treatment of small chunks would be preferable.
   
   
 Todo
 ====
 // TODO check program usage
 // TODO render results
-Mavenize project 
 Add mocking framework for better unit testing.
 Add a logger system.
-Refactor the ant build
-(Duplicate the project for a maven build)
 Generate javadoc
 
 
