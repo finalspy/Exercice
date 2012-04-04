@@ -112,6 +112,10 @@ Technical Specifications
   Tracking of renaming : 
   This first version uses path and file name to identify files.
   A better way to process would be to have the file hash value in the xml description, thus we would be able to track simple renaming and make a distinction between them and add/delete of two separate files.
+  This process is used in famous distributed source control management like GIT.
+  The idea behind this use of hash values is that content is more important than file itself.
+  But this doesn't solve the case of simultaneous renaming and content change which is too close from deletion and creation of a new file.
+  To allow that the only reliable solution seems to keep track of renaming at saving time and pass this meta information at synchronization with remote file system.
   
   Next steps
   ----------
@@ -126,6 +130,8 @@ Todo
 ====
 // TODO check program usage
 // TODO render results
+Improve packaging and distribution of software (zip with /bin/, /README, /lib/Exercice.jar ...)
+Add integration tests
 Add mocking framework for better unit testing.
 Add a logger system.
 Generate javadoc
