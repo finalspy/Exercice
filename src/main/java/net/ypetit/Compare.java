@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -23,21 +24,22 @@ public class Compare {
      * 
      * @param args
      */
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         System.out.println("Compare launched !");
         // TODO check program usage
         // load input files
-        Document beforeDocument = Compare.loadFile(new File(args[0]));
-        Document afterDocument = Compare.loadFile(new File(args[1]));
+        final Document beforeDocument = Compare.loadFile(new File(args[0]));
+        final Document afterDocument = Compare.loadFile(new File(args[1]));
         // extract elements to treat (as List by default)
-        List<Element> beforeList = Compare.extractData(beforeDocument);
-        List<Element> afterList = Compare.extractData(afterDocument);
+        final List<Element> beforeList = Compare.extractData(beforeDocument);
+        final List<Element> afterList = Compare.extractData(afterDocument);
         // convert lists to map with useful keys.
-        Map<String, Element> beforeMap = Compare.asMap(beforeList);
-        Map<String, Element> afterMap = Compare.asMap(afterList);
-        // TODO process to detect differences (additions, modifications,
-        // deletions)
-        Compare.findDifferences(beforeMap, afterMap);
+        final Map<String, Element> beforeMap = Compare.asMap(beforeList);
+        final Map<String, Element> afterMap = Compare.asMap(afterList);
+
+        // process to detect differences (additions, modifications, deletions)
+        final Map<String, Element> results = Compare.findDifferences(beforeMap,
+                afterMap);
         // TODO render results
         System.out.println("Compare exited !");
     }
@@ -50,15 +52,15 @@ public class Compare {
      * @return a Dom Document representation of the input file, or null if file
      *         hasn't been loaded properly.
      */
-    public static Document loadFile(File path) {
+    public static Document loadFile(final File path) {
         Document document = null;
         try {
-            SAXBuilder sxb = new SAXBuilder();
+            final SAXBuilder sxb = new SAXBuilder();
             document = sxb.build(path);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             System.out.println("Error reading file " + e.getMessage());
             e.printStackTrace();
-        } catch (JDOMException e) {
+        } catch (final JDOMException e) {
             System.out.println("Error building JDOM " + e.getMessage());
             e.printStackTrace();
         }
@@ -78,17 +80,17 @@ public class Compare {
      *         or parsing the input Document.
      */
     @SuppressWarnings("unchecked")
-    public static List<Element> extractData(Document treeFileDocument) {
+    public static List<Element> extractData(final Document treeFileDocument) {
         List<Element> result = null;
         if (null != treeFileDocument) {
             try {
-                Element racine = treeFileDocument.getRootElement();
-                XPath xpathFiles = XPath.newInstance("//file|//tree");
+                final Element racine = treeFileDocument.getRootElement();
+                final XPath xpathFiles = XPath.newInstance("//file|//tree");
                 result = xpathFiles.selectNodes(racine);
-            } catch (JDOMException e) {
+            } catch (final JDOMException e) {
                 System.out.println("Error parsing JDOM " + e.getMessage());
                 e.printStackTrace();
-            } catch (IllegalStateException e) {
+            } catch (final IllegalStateException e) {
                 System.out.println("Error parsing JDOM " + e.getMessage());
                 e.printStackTrace();
             }
@@ -104,17 +106,17 @@ public class Compare {
      *            List of Element object to convert to a map.
      * @return a Map of String as key and Element as value.
      */
-    public static Map<String, Element> asMap(List<Element> elements) {
+    public static Map<String, Element> asMap(final List<Element> elements) {
         Map<String, Element> filesMap = null;
         if (null != elements) {
             filesMap = new HashMap<String, Element>();
-            Iterator<Element> iter = elements.iterator();
+            final Iterator<Element> iter = elements.iterator();
             Element noeudCourant = null;
             while (iter.hasNext()) {
                 noeudCourant = iter.next();
                 // extract key from Element parent @name concatenation to
                 // reflect filesystem hierarchy
-                filesMap.put(getFullPath(noeudCourant), noeudCourant);
+                filesMap.put(Compare.getFullPath(noeudCourant), noeudCourant);
             }
         }
         return filesMap;
@@ -129,15 +131,18 @@ public class Compare {
      *            The element to extract the path from.
      * @return a String representing the extracted path.
      */
-    public static String getFullPath(Element element) {
+    public static String getFullPath(final Element element) {
         String fullPath = null;
-        while (element != null) {
-            if (element.getName().equals("tree"))
-                fullPath = element.getAttributeValue("name") + PATH_SEPARATOR
-                        + fullPath;
-            if (element.getName().equals("file"))
-                fullPath = element.getAttributeValue("name");
-            element = element.getParentElement();
+        Element current = element;
+        while (current != null) {
+            if (current.getName().equals("tree")) {
+                fullPath = current.getAttributeValue("name")
+                        + Compare.PATH_SEPARATOR + fullPath;
+            }
+            if (current.getName().equals("file")) {
+                fullPath = current.getAttributeValue("name");
+            }
+            current = current.getParentElement();
         }
         return fullPath;
     }
@@ -152,43 +157,56 @@ public class Compare {
      * @param output
      *            the second Map to compare
      */
-    public static void findDifferences(Map<String, Element> input,
-            Map<String, Element> output) {
-        // TODO add some output object
-        // TODO case no attribute name/size/modif-date (validate file structure
-        // before ?)
+    public static Map<String, Element> findDifferences(
+            final Map<String, Element> input, final Map<String, Element> output) {
+        final Map<String, Element> results = new HashMap<String, Element>();
         Element value = null;
         String key = null;
-        for (Map.Entry<String, Element> entry : output.entrySet()) {
+        for (final Map.Entry<String, Element> entry : output.entrySet()) {
             key = entry.getKey();
             value = entry.getValue();
-            if (!input.containsKey(key)) {
-                // FIXME case no attribute name
-                System.out.println("ADDED : " + value.getName() + " "
-                        + value.getAttributeValue("name"));
-            } else {
-                // compare size and name for a hash
-                // FIXME case no attribute name
-                if ("file".equals(value.getName())) {
-                    // FIXME case no attribute size or modif-date
-                    if (!value.getAttributeValue("size").equals(
-                            input.get(key).getAttributeValue("size"))
-                            || !value.getAttributeValue("modif-date").equals(
-                                    input.get(key).getAttributeValue(
-                                            "modif-date"))) {
-                        System.out.println("CHANGED : " + value.getName() + " "
-                                + value.getAttributeValue("name"));
+            // needs to check that value isn't null and has a name attribute
+            if (null != value
+                    && StringUtils.isNotEmpty(value.getAttributeValue("name"))) {
+                // ADDED : key not present so path tree/file has been added
+                if (!input.containsKey(key)) {
+                    System.out.println("ADDED : " + value.getName() + " "
+                            + value.getAttributeValue("name"));
+                } else {
+                    // MODIFIED : compare size and name
+                    // TODO or a hash
+                    if ("file".equals(value.getName())) {
+                        if (StringUtils.isNotEmpty(value
+                                .getAttributeValue("size"))
+                                && StringUtils.isNotEmpty(value
+                                        .getAttributeValue("modif-date"))
+                                && (!value.getAttributeValue("size").equals(
+                                        input.get(key)
+                                                .getAttributeValue("size")) || !value
+                                        .getAttributeValue("modif-date")
+                                        .equals(input
+                                                .get(key)
+                                                .getAttributeValue("modif-date")))) {
+                            System.out.println("CHANGED : " + value.getName()
+                                    + " " + value.getAttributeValue("name"));
+                        }
                     }
+                    // remove treated key (at the end remaining keys are those
+                    // which where removed in outputfile)
+                    input.remove(key);
                 }
-                input.remove(key);
             }
         }
-        for (Map.Entry<String, Element> entry : input.entrySet()) {
+        // DELETED : remaining key denotes file/trees not present in output file
+        for (final Map.Entry<String, Element> entry : input.entrySet()) {
             value = entry.getValue();
-            // FIXME case no attribute name
-            System.out.println("DELETED : " + value.getName() + " "
-                    + value.getAttributeValue("name"));
+            if (null != value
+                    && StringUtils.isNotEmpty(value.getAttributeValue("name"))) {
+                System.out.println("DELETED : " + value.getName() + " "
+                        + value.getAttributeValue("name"));
+            }
         }
+        return results;
     }
 
 }

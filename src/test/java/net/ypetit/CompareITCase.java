@@ -24,7 +24,7 @@ public class CompareITCase {
     }
 
     /**
-     * This method tests the add of a file in the second filesystem xml.
+     * This method tests the add of a file in the second filesystem xml
      * description.
      */
     @Test
@@ -35,7 +35,7 @@ public class CompareITCase {
     }
 
     /**
-     * This method tests the add of a folder in the second filesystem xml.
+     * This method tests the add of a folder in the second filesystem xml
      * description.
      */
     @Test
@@ -46,7 +46,7 @@ public class CompareITCase {
     }
 
     /**
-     * This method tests the deletion of a file in the second filesystem xml.
+     * This method tests the deletion of a file in the second filesystem xml
      * description.
      */
     @Test
@@ -58,7 +58,7 @@ public class CompareITCase {
     }
 
     /**
-     * This method tests the deletion of a folder in the second filesystem xml.
+     * This method tests the deletion of a folder in the second filesystem xml
      * description.
      */
     @Test
@@ -70,7 +70,7 @@ public class CompareITCase {
     }
 
     /**
-     * This method tests the update of a file date in the second filesystem xml.
+     * This method tests the update of a file date in the second filesystem xml
      * description.
      */
     @Test
@@ -82,7 +82,7 @@ public class CompareITCase {
     }
 
     /**
-     * This method tests the update of a file size in the second filesystem xml.
+     * This method tests the update of a file size in the second filesystem xml
      * description.
      */
     @Test
@@ -93,7 +93,16 @@ public class CompareITCase {
                 "src/test/resources/update-file-size/After.xml" });
     }
 
-    // TODO test complex
+    /**
+     * This method tests a mix of different type of changes in the second
+     * filesystem xml description.
+     */
+    @Test
+    public void complexTest() {
+        System.out.println("INTEGRATION TEST : complexTest()");
+        Compare.main(new String[] { "src/test/resources/complex/Before.xml",
+                "src/test/resources/complex/After.xml" });
+    }
     // TODO test large
     // TODO test rename file
     // TODO test rename folder
