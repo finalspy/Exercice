@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tree name="root">
+	<tree name="home">
+		<tree name="joe">
+			<file name="a.txt" modif-date="20120102T1030" size="5032" hash="f3ac5e6dd11b7a3ceb00e10c74f79769cfd5db9b"/>
+		</tree>
+	</tree>
+</tree>
