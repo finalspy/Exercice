@@ -1,6 +1,3 @@
-/**
- * 
- */
 package net.ypetit;
 
 import java.io.File;
@@ -20,6 +17,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
+ * Unit test class for the Compare object methods.
+ * 
  * @author ypetit
  */
 public class CompareTest {
@@ -164,6 +163,7 @@ public class CompareTest {
         output.put("home/a.txt", elementA);
         output.put("home/b.txt", elementB);
         Compare.findDifferences(input, output);
+        // TODO add assertions on resulting object
     }
 
     @Test
@@ -186,6 +186,7 @@ public class CompareTest {
         output.put("home", elementHome);
         output.put("home/a.txt", elementA);
         Compare.findDifferences(input, output);
+        // TODO add assertions on resulting object
     }
 
     @Test
@@ -215,5 +216,34 @@ public class CompareTest {
         output.put("home/a.txt", elementA2);
         output.put("home/b.txt", elementB2);
         Compare.findDifferences(input, output);
+        // TODO add assertions on resulting object
+    }
+
+    @Test
+    public void findDifferencesRenamed() {
+        // Initialize some elements
+        final Element elementA = new Element("file")
+                .setAttribute("name", "a.txt")
+                .setAttribute("size", "5032")
+                .setAttribute("modif-date", "20120102T1030")
+                .setAttribute("hash",
+                        "f3ac5e6dd11b7a3ceb00e10c74f79769cfd5db9b");
+        final Element elementB = new Element("file")
+                .setAttribute("name", "b.txt")
+                .setAttribute("size", "5032")
+                .setAttribute("modif-date", "20120102T1030")
+                .setAttribute("hash",
+                        "f3ac5e6dd11b7a3ceb00e10c74f79769cfd5db9b");
+        final Element elementHome = new Element("tree").setAttribute("name",
+                "home");
+        elementHome.addContent(elementA).addContent(elementB);
+        final Map<String, Element> input = new HashMap<String, Element>();
+        input.put("home", elementHome);
+        input.put("home/a.txt", elementA);
+        final Map<String, Element> output = new HashMap<String, Element>();
+        output.put("home", elementHome);
+        output.put("home/b.txt", elementB);
+        Compare.findDifferences(input, output);
+        // TODO add assertions on resulting object
     }
 }

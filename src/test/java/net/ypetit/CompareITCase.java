@@ -103,7 +103,19 @@ public class CompareITCase {
         Compare.main(new String[] { "src/test/resources/complex/Before.xml",
                 "src/test/resources/complex/After.xml" });
     }
+
     // TODO test large
-    // TODO test rename file
+    // test rename file
+    /**
+     * This method tests a file renaiming without content changes in the second
+     * filesystem xml description.
+     */
+    @Test
+    public void renameFileTest() {
+        System.out.println("INTEGRATION TEST : renameFileTest()");
+        Compare.main(new String[] {
+                "src/test/resources/update-file-name/Before.xml",
+                "src/test/resources/update-file-name/After.xml" });
+    }
     // TODO test rename folder
 }
