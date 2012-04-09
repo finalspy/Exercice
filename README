@@ -110,17 +110,22 @@ Technical Specifications
   (Note: all classes are made public static for easy testing).
   
   Tracking of renaming : 
-  This first version uses path and file name to identify files.
-  A better way to process would be to have the file hash value in the xml description, thus we would be able to track simple renaming and make a distinction between them and add/delete of two separate files.
+  This first version used path and file name to identify files.
+  A better way to process is to have the file hash value in the xml description, thus are able to track simple renaming and make a distinction between them and add/delete of two separate files.
   This process is used in famous distributed source control management like GIT.
   The idea behind this use of hash values is that content is more important than file itself.
+  For folders we should also be able calculate a hash by using the folder contents hashes sorted then concatenated and hashed again... 
   But this doesn't solve the case of simultaneous renaming and content change which is too close from deletion and creation of a new file.
   To allow that the only reliable solution seems to keep track of renaming at saving time and pass this meta information at synchronization with remote file system.
   
+    
   Next steps
   ----------
   Benchmark the code with huge amount of data and complex structures.
-  Find some ways to improve algorithm or parallelize treatment.
+  Add hash on folders to follow renaming.
+  Find some ways to improve algorithm :
+  If an entire folder has been deleted/added we could improve the algorythm to only take care of the top level element involved in the deletion/addition instead of taking each sub elements one by one.
+  Find some ways to parallelize treatment.
   JDom is a DOM API that won't scale well on large documents because it loads the whole document and consumes memory.
   Alternatives are Sax parser API like Stax, JAXB ...
   If XML chunks can be managed to keep small size maybe parallelized treatment of small chunks would be preferable.
@@ -129,11 +134,11 @@ Technical Specifications
 Todo
 ====
 // TODO check program usage
-// TODO render results
+// TODO use fuse4j-hadoopfs on results from diff to apply some kind of patch.
 Improve packaging and distribution of software (zip with /bin/, /README, /lib/Exercice.jar ...)
-Add integration tests
 Add mocking framework for better unit testing.
 Add a logger system.
-Generate javadoc
+
+
 
 

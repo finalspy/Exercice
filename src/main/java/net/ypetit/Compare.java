@@ -7,6 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import net.ypetit.Result.ResultType;
+
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -38,9 +40,10 @@ public class Compare {
         final Map<String, Element> afterMap = Compare.asMap(afterList);
 
         // process to detect differences (additions, modifications, deletions)
-        final Map<String, Element> results = Compare.findDifferences(beforeMap,
+        final Map<String, Result> results = Compare.findDifferences(beforeMap,
                 afterMap);
-        // TODO render results
+        // render results
+        System.out.println(results.values().toString());
         System.out.println("Compare exited !");
     }
 
@@ -125,7 +128,9 @@ public class Compare {
     /**
      * This method is used to extract full path from an element. It uses a
      * concatenation of each ancestor "name" attribute value and the current
-     * element "name" attribute separated with FILE_SEPARATOR.
+     * element "hash" attribute separated with FILE_SEPARATOR. (previous version
+     * used the current element "name" attribute, but this method didn't allow
+     * to detects renaming.)
      * 
      * @param element
      *            The element to extract the path from.
@@ -147,19 +152,25 @@ public class Compare {
         return fullPath;
     }
 
+    // TODO simplify method in more unitary other methods
     /**
      * This method contains the core treatment to find differences between two
      * map containing file and tree elements extracted from an XML file
-     * representing a file system structure.
+     * representing a file system structure. It returns a map of Result objects
+     * by path. A Result objects contains the source and target Dom Element, and
+     * the type of the difference noticed between them. The Result objects map
+     * can further be used to apply some kind of patch between two file systems.
      * 
      * @param input
      *            the first Map to compare.
      * @param output
      *            the second Map to compare
+     * @return results, a Map of String (path) as key and Result objects as
+     *         value.
      */
-    public static Map<String, Element> findDifferences(
+    public static Map<String, Result> findDifferences(
             final Map<String, Element> input, final Map<String, Element> output) {
-        final Map<String, Element> results = new HashMap<String, Element>();
+        final Map<String, Result> results = new HashMap<String, Result>();
         Element value = null;
         String key = null;
         for (final Map.Entry<String, Element> entry : output.entrySet()) {
@@ -170,11 +181,10 @@ public class Compare {
                     && StringUtils.isNotEmpty(value.getAttributeValue("name"))) {
                 // ADDED : key not present so path tree/file has been added
                 if (!input.containsKey(key)) {
-                    System.out.println("ADDED : " + value.getName() + " "
-                            + value.getAttributeValue("name"));
+                    results.put(key, new Result(Result.ResultType.ADDED, key,
+                            null, value));
                 } else {
                     // MODIFIED : compare size and name
-                    // TODO or a hash
                     if ("file".equals(value.getName())) {
                         if (StringUtils.isNotEmpty(value
                                 .getAttributeValue("size"))
@@ -187,8 +197,9 @@ public class Compare {
                                         .equals(input
                                                 .get(key)
                                                 .getAttributeValue("modif-date")))) {
-                            System.out.println("CHANGED : " + value.getName()
-                                    + " " + value.getAttributeValue("name"));
+                            results.put(key,
+                                    new Result(Result.ResultType.MODIFIED, key,
+                                            input.get(key), value));
                         }
                     }
                     // remove treated key (at the end remaining keys are those
@@ -199,14 +210,60 @@ public class Compare {
         }
         // DELETED : remaining key denotes file/trees not present in output file
         for (final Map.Entry<String, Element> entry : input.entrySet()) {
+            key = entry.getKey();
             value = entry.getValue();
             if (null != value
                     && StringUtils.isNotEmpty(value.getAttributeValue("name"))) {
-                System.out.println("DELETED : " + value.getName() + " "
-                        + value.getAttributeValue("name"));
+                results.put(key, new Result(Result.ResultType.DELETED, key,
+                        value, null));
             }
         }
+        // Keep track of renaming/moving by comparing hashes from deleted/added
+        // files remap using hash
+        Map<ResultType, Map<String, Element>> hashDeletedAddedMap = asHashMap(results);
+        Map<String, Element> deletedHashMap = hashDeletedAddedMap
+                .get(Result.ResultType.DELETED);
+        Map<String, Element> addedHashMap = hashDeletedAddedMap
+                .get(Result.ResultType.ADDED);
+        // iterate over deleted
+        for (final Map.Entry<String, Element> entry : deletedHashMap.entrySet()) {
+            key = entry.getKey();
+            value = entry.getValue();
+            // verify if added contains it
+            if (addedHashMap.containsKey(key)) {
+                // RENAMED : add as renamed and remove deleted/added ones.
+                results.put(getFullPath(value), new Result(
+                        Result.ResultType.RENAMED, getFullPath(value), value,
+                        addedHashMap.get(key)));
+                results.remove(getFullPath(addedHashMap.get(key)));
+            }
+        }
+
         return results;
     }
 
+    /**
+     * @param results
+     * @return
+     */
+    public static Map<ResultType, Map<String, Element>> asHashMap(
+            Map<String, Result> results) {
+        Map<ResultType, Map<String, Element>> result = new HashMap<ResultType, Map<String, Element>>();
+        Map<String, Element> deleted = new HashMap<String, Element>();
+        Map<String, Element> added = new HashMap<String, Element>();
+        Result value;
+        for (final Map.Entry<String, Result> entry : results.entrySet()) {
+            value = entry.getValue();
+            if (Result.ResultType.ADDED.equals(value.getType())) {
+                added.put(value.getTarget().getAttributeValue("hash"),
+                        value.getTarget());
+            } else if (Result.ResultType.DELETED.equals(value.getType())) {
+                deleted.put(value.getSource().getAttributeValue("hash"),
+                        value.getSource());
+            }
+        }
+        result.put(Result.ResultType.ADDED, added);
+        result.put(Result.ResultType.DELETED, deleted);
+        return result;
+    }
 }

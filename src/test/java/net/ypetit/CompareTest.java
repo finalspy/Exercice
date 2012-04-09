@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import junit.framework.Assert;
+import net.ypetit.Result.ResultType;
 
 import org.jdom.Document;
 import org.jdom.Element;
@@ -55,7 +56,6 @@ public class CompareTest {
      */
     @Before
     public void setUp() throws Exception {
-
     }
 
     /**
@@ -109,8 +109,10 @@ public class CompareTest {
         // TODO mock getFullPath method
         final List<Element> elementsList = new ArrayList<Element>();
         elementsList.add(new Element("tree").setAttribute("name", "home"));
-        elementsList.add(new Element("file").setAttribute("name", "a.txt"));
-        elementsList.add(new Element("file").setAttribute("name", "b.txt"));
+        elementsList.add(new Element("file").setAttribute("name", "a.txt")
+                .setAttribute("hash", "0123456789abcdef0"));
+        elementsList.add(new Element("file").setAttribute("name", "b.txt")
+                .setAttribute("hash", "0123456789abcdef1"));
         Map<String, Element> elementsMap = Compare.asMap(elementsList);
         Assert.assertNotNull(elementsMap);
         // Expected 3 not 2 as Map doesn't accept duplicate keys but two element
@@ -126,9 +128,9 @@ public class CompareTest {
     public void getFullPath() {
         // Initialize some elements
         final Element elementA = new Element("file").setAttribute("name",
-                "a.txt");
+                "a.txt").setAttribute("hash", "0123456789abcdef0");
         final Element elementB = new Element("file").setAttribute("name",
-                "b.txt");
+                "b.txt").setAttribute("hash", "0123456789abcdef1");
         final Element elementHome = new Element("tree").setAttribute("name",
                 "home");
         elementHome.addContent(elementA).addContent(elementB);
@@ -144,14 +146,46 @@ public class CompareTest {
     }
 
     @Test
+    public void asHashMap() {
+        Map<String, Result> results = new HashMap<String, Result>();
+        final Element elementA = new Element("file").setAttribute("name",
+                "a.txt").setAttribute("hash", "0123456789abcdef0");
+        final Element elementB = new Element("file").setAttribute("name",
+                "b.txt").setAttribute("hash", "0123456789abcdef0");
+        final Element elementHome = new Element("tree").setAttribute("name",
+                "home");
+        elementHome.addContent(elementA).addContent(elementB);
+        results.put("home/b.txt", new Result(ResultType.ADDED, "home/b.txt",
+                null, elementB));
+        results.put("home/a.txt", new Result(ResultType.DELETED, "home/a.txt",
+                elementA, null));
+        Map<ResultType, Map<String, Element>> result = Compare
+                .asHashMap(results);
+        Assert.assertNotNull(result);
+        Assert.assertEquals(2, result.size());
+        Assert.assertTrue(result.get(ResultType.DELETED).size() == 1);
+        Assert.assertTrue(result.get(ResultType.ADDED).size() == 1);
+        Assert.assertTrue(result.get(ResultType.DELETED).containsKey(
+                "0123456789abcdef0"));
+        Assert.assertTrue(result.get(ResultType.ADDED).containsKey(
+                "0123456789abcdef0"));
+        Assert.assertTrue("home/a.txt".equals(Compare.getFullPath(result.get(
+                ResultType.DELETED).get("0123456789abcdef0"))));
+        Assert.assertTrue("home/b.txt".equals(Compare.getFullPath(result.get(
+                ResultType.ADDED).get("0123456789abcdef0"))));
+    }
+
+    @Test
     public void findDifferencesAdded() {
         // Initialize some elements
         final Element elementA = new Element("file")
                 .setAttribute("name", "a.txt").setAttribute("size", "5032")
-                .setAttribute("modif-date", "20120102T1030");
+                .setAttribute("modif-date", "20120102T1030")
+                .setAttribute("hash", "0123456789abcdef0");
         final Element elementB = new Element("file")
                 .setAttribute("name", "b.txt").setAttribute("size", "1234")
-                .setAttribute("modif-date", "20120102T1030");
+                .setAttribute("modif-date", "20120102T1030")
+                .setAttribute("hash", "0123456789abcdef1");
         final Element elementHome = new Element("tree").setAttribute("name",
                 "home");
         elementHome.addContent(elementA).addContent(elementB);
@@ -162,8 +196,17 @@ public class CompareTest {
         output.put("home", elementHome);
         output.put("home/a.txt", elementA);
         output.put("home/b.txt", elementB);
-        Compare.findDifferences(input, output);
-        // TODO add assertions on resulting object
+        Map<String, Result> results = Compare.findDifferences(input, output);
+        // assertions on resulting object
+        Assert.assertNotNull(results);
+        Assert.assertEquals(1, results.size());
+        Assert.assertTrue(results.containsKey("home/b.txt"));
+        Assert.assertEquals(Result.ResultType.ADDED, results.get("home/b.txt")
+                .getType());
+        Assert.assertEquals("home/b.txt", results.get("home/b.txt").getPath());
+        Assert.assertNull(results.get("home/b.txt").getSource());
+        Assert.assertNotNull(results.get("home/b.txt").getTarget());
+        System.out.println(results);
     }
 
     @Test
@@ -171,10 +214,12 @@ public class CompareTest {
         // Initialize some elements
         final Element elementA = new Element("file")
                 .setAttribute("name", "a.txt").setAttribute("size", "5032")
-                .setAttribute("modif-date", "20120102T1030");
+                .setAttribute("modif-date", "20120102T1030")
+                .setAttribute("hash", "0123456789abcdef0");
         final Element elementB = new Element("file")
                 .setAttribute("name", "b.txt").setAttribute("size", "1234")
-                .setAttribute("modif-date", "20120102T1030");
+                .setAttribute("modif-date", "20120102T1030")
+                .setAttribute("hash", "0123456789abcdef1");
         final Element elementHome = new Element("tree").setAttribute("name",
                 "home");
         elementHome.addContent(elementA).addContent(elementB);
@@ -185,8 +230,17 @@ public class CompareTest {
         final Map<String, Element> output = new HashMap<String, Element>();
         output.put("home", elementHome);
         output.put("home/a.txt", elementA);
-        Compare.findDifferences(input, output);
-        // TODO add assertions on resulting object
+        Map<String, Result> results = Compare.findDifferences(input, output);
+        // assertions on resulting object
+        Assert.assertNotNull(results);
+        Assert.assertEquals(1, results.size());
+        Assert.assertTrue(results.containsKey("home/b.txt"));
+        Assert.assertEquals(Result.ResultType.DELETED, results
+                .get("home/b.txt").getType());
+        Assert.assertEquals("home/b.txt", results.get("home/b.txt").getPath());
+        Assert.assertNotNull(results.get("home/b.txt").getSource());
+        Assert.assertNull(results.get("home/b.txt").getTarget());
+        System.out.println(results);
     }
 
     @Test
@@ -194,10 +248,12 @@ public class CompareTest {
         // Initialize some elements
         final Element elementA = new Element("file")
                 .setAttribute("name", "a.txt").setAttribute("size", "5032")
-                .setAttribute("modif-date", "20120102T1030");
+                .setAttribute("modif-date", "20120102T1030")
+                .setAttribute("hash", "0123456789abcdef1");
         final Element elementA2 = new Element("file")
                 .setAttribute("name", "a.txt").setAttribute("size", "5031")
-                .setAttribute("modif-date", "20120102T1030");
+                .setAttribute("modif-date", "20120102T1030")
+                .setAttribute("hash", "0123456789abcdef1");
         final Element elementB = new Element("file")
                 .setAttribute("name", "b.txt").setAttribute("size", "1234")
                 .setAttribute("modif-date", "20120102T1030");
@@ -215,8 +271,23 @@ public class CompareTest {
         output.put("home", elementHome);
         output.put("home/a.txt", elementA2);
         output.put("home/b.txt", elementB2);
-        Compare.findDifferences(input, output);
-        // TODO add assertions on resulting object
+        Map<String, Result> results = Compare.findDifferences(input, output);
+        // assertions on resulting object
+        Assert.assertNotNull(results);
+        Assert.assertEquals(2, results.size());
+        Assert.assertTrue(results.containsKey("home/b.txt"));
+        Assert.assertEquals(Result.ResultType.MODIFIED,
+                results.get("home/b.txt").getType());
+        Assert.assertEquals("home/b.txt", results.get("home/b.txt").getPath());
+        Assert.assertNotNull(results.get("home/b.txt").getSource());
+        Assert.assertNotNull(results.get("home/b.txt").getTarget());
+        Assert.assertTrue(results.containsKey("home/a.txt"));
+        Assert.assertEquals(Result.ResultType.MODIFIED,
+                results.get("home/a.txt").getType());
+        Assert.assertEquals("home/a.txt", results.get("home/a.txt").getPath());
+        Assert.assertNotNull(results.get("home/a.txt").getSource());
+        Assert.assertNotNull(results.get("home/a.txt").getTarget());
+        System.out.println(results);
     }
 
     @Test
@@ -243,7 +314,20 @@ public class CompareTest {
         final Map<String, Element> output = new HashMap<String, Element>();
         output.put("home", elementHome);
         output.put("home/b.txt", elementB);
-        Compare.findDifferences(input, output);
-        // TODO add assertions on resulting object
+        Map<String, Result> results = Compare.findDifferences(input, output);
+        // assertions on resulting object
+        Assert.assertNotNull(results);
+        Assert.assertEquals(1, results.size());
+        Assert.assertTrue(results.containsKey("home/a.txt"));
+        Assert.assertEquals(Result.ResultType.RENAMED, results
+                .get("home/a.txt").getType());
+        Assert.assertEquals("home/a.txt", results.get("home/a.txt").getPath());
+        Assert.assertNotNull(results.get("home/a.txt").getSource());
+        Assert.assertNotNull(results.get("home/a.txt").getTarget());
+        Assert.assertEquals("home/a.txt",
+                Compare.getFullPath(results.get("home/a.txt").getSource()));
+        Assert.assertEquals("home/b.txt",
+                Compare.getFullPath(results.get("home/a.txt").getTarget()));
+        System.out.println(results);
     }
 }

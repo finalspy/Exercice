@@ -1,4 +1,4 @@
-package net.ypetit.fuse4j.hadoopfj;
+package net.ypetit.fuse4j.hadoopfs;
 
 import java.nio.ByteBuffer;
 
