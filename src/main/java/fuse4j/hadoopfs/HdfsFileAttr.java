@@ -30,8 +30,9 @@ public class HdfsFileAttr extends HdfsFileInfo {
         super();
     }
 
-    public HdfsFileAttr(boolean directory, long inode, int mode, int uid,
-            int gid, int numberOfLinks) {
+    public HdfsFileAttr(final boolean directory, final long inode,
+            final int mode, final int uid, final int gid,
+            final int numberOfLinks) {
         super(directory, inode, mode);
         this.uid = uid;
         this.gid = gid;

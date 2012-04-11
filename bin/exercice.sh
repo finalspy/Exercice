@@ -1,1 +1,1 @@
-java -jar ../target/Exercice-0.1.1-SNAPSHOT-jar-with-dependencies.jar ../src/main/resources/Before.xml ../src/main/resources/After.xml
+java -jar ../target/Exercice-0.2.0-SNAPSHOT-jar-with-dependencies.jar ../src/main/resources/Before.xml ../src/main/resources/After.xml

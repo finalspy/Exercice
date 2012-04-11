@@ -110,13 +110,16 @@ Technical Specifications
   (Note: all classes are made public static for easy testing).
   
   Tracking of renaming : 
-  This first version used path and file name to identify files.
+  The first version used path and file name to identify files.
   A better way to process is to have the file hash value in the xml description, thus are able to track simple renaming and make a distinction between them and add/delete of two separate files.
+  What we've done, was to add a last step to compare deleted/added file list by comparing hash of files content in order to detect a same content with a different path/name.
+  Prior to this another step was added to Map all deleted/added results by hash.
   This process is used in famous distributed source control management like GIT.
   The idea behind this use of hash values is that content is more important than file itself.
   For folders we should also be able calculate a hash by using the folder contents hashes sorted then concatenated and hashed again... 
   But this doesn't solve the case of simultaneous renaming and content change which is too close from deletion and creation of a new file.
   To allow that the only reliable solution seems to keep track of renaming at saving time and pass this meta information at synchronization with remote file system.
+  
   
     
   Next steps
@@ -137,7 +140,7 @@ Todo
 // TODO use fuse4j-hadoopfs on results from diff to apply some kind of patch.
 Improve packaging and distribution of software (zip with /bin/, /README, /lib/Exercice.jar ...)
 Add mocking framework for better unit testing.
-Add a logger system.
+
 
 
 

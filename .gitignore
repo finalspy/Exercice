@@ -5,3 +5,5 @@
 .settings/
 # Ignore build directory
 target/
+# Ignore log directory
+log/

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration>
+	<appender name="Console" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern"
+				value="%23.23d{yyyy/MM/dd HH:mm s.SSS} %p | %t | %C | %M(%L) : %m%n" />
+		</layout>
+	</appender>
+	<appender name="FileError" class="org.apache.log4j.FileAppender">
+		<param name="File" value="log/exercice.log" />
+		<param name="Threshold" value="WARN" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern"
+				value="%23.23d{yyyy/MM/dd HH:mm s.SSS} %5p |%10t|%C|%20M(%4L):%m%n" />
+		</layout>
+	</appender>
+	<logger name="net.ypetit"
+		additivity="false">
+		<level value="WARN" />
+		<appender-ref ref="FileError" />
+		<appender-ref ref="Console" />
+	</logger>
+	<root>
+		<level value="INFO" />
+		<appender-ref ref="Console" />
+	</root>
+</log4j:configuration>

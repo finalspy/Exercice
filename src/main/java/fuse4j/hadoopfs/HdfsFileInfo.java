@@ -14,7 +14,7 @@ package fuse4j.hadoopfs;
  * governing permissions and limitations under the License.
  */
 
-import fuse.FuseFtype;
+import fuse.FuseFtypeConstants;
 
 public abstract class HdfsFileInfo {
     public boolean directory;
@@ -26,13 +26,16 @@ public abstract class HdfsFileInfo {
     public HdfsFileInfo() {
     }
 
-    public HdfsFileInfo(boolean directory, long inode, int mode) {
+    public HdfsFileInfo(final boolean directory, final long inode,
+            final int mode) {
         this.directory = directory;
         this.inode = inode;
         this.mode = mode;
     }
 
     public int getMode() {
-        return mode | (directory ? FuseFtype.TYPE_DIR : FuseFtype.TYPE_FILE);
+        return this.mode
+                | (this.directory ? FuseFtypeConstants.TYPE_DIR
+                        : FuseFtypeConstants.TYPE_FILE);
     }
 }

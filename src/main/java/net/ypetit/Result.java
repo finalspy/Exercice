@@ -51,7 +51,7 @@ public class Result {
      *         between source and target.
      */
     public final ResultType getType() {
-        return type;
+        return this.type;
     }
 
     /**
@@ -70,7 +70,7 @@ public class Result {
      *         target file systems.
      */
     public final String getPath() {
-        return path;
+        return this.path;
     }
 
     /**
@@ -90,7 +90,7 @@ public class Result {
      *         source and target file systems.
      */
     public final Element getSource() {
-        return source;
+        return this.source;
     }
 
     /**
@@ -110,7 +110,7 @@ public class Result {
      *         source and target file systems.
      */
     public final Element getTarget() {
-        return target;
+        return this.target;
     }
 
     /**
@@ -125,8 +125,8 @@ public class Result {
 
     @Override
     public final String toString() {
-        StringBuilder result = new StringBuilder();
-        result.append(type).append(" ").append(path);
+        final StringBuilder result = new StringBuilder();
+        result.append(this.type).append(" ").append(this.path);
         return result.toString();
     }
 

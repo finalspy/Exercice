@@ -8,57 +8,59 @@ import fuse4j.hadoopfs.HdfsFileAttr;
 
 public class HdfsClientMockImpl implements HdfsClient {
 
-    public HdfsFileAttr getFileInfo(String path) {
+    public HdfsFileAttr getFileInfo(final String path) {
         // TODO Auto-generated method stub
         return null;
     }
 
-    public HdfsDirEntry[] listPaths(String path) {
+    public HdfsDirEntry[] listPaths(final String path) {
         // TODO Auto-generated method stub
         return null;
     }
 
-    public Object openForRead(String path) {
+    public Object openForRead(final String path) {
         // TODO Auto-generated method stub
         return null;
     }
 
-    public Object createForWrite(String path) {
+    public Object createForWrite(final String path) {
         // TODO Auto-generated method stub
         return null;
     }
 
-    public boolean close(Object hdfsFile) {
+    public boolean close(final Object hdfsFile) {
         // TODO Auto-generated method stub
         return false;
     }
 
-    public boolean read(Object hdfsFile, ByteBuffer buf, long offset) {
+    public boolean read(final Object hdfsFile, final ByteBuffer buf,
+            final long offset) {
         // TODO Auto-generated method stub
         return false;
     }
 
-    public boolean write(Object hdfsFile, ByteBuffer buf, long offset) {
+    public boolean write(final Object hdfsFile, final ByteBuffer buf,
+            final long offset) {
         // TODO Auto-generated method stub
         return false;
     }
 
-    public boolean mkdir(String path) {
+    public boolean mkdir(final String path) {
         // TODO Auto-generated method stub
         return false;
     }
 
-    public boolean unlink(String filePath) {
+    public boolean unlink(final String filePath) {
         // TODO Auto-generated method stub
         return false;
     }
 
-    public boolean rmdir(String dirPath) {
+    public boolean rmdir(final String dirPath) {
         // TODO Auto-generated method stub
         return false;
     }
 
-    public boolean rename(String src, String dst) {
+    public boolean rename(final String src, final String dst) {
         // TODO Auto-generated method stub
         return false;
     }

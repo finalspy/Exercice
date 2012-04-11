@@ -9,6 +9,7 @@ import java.util.Map;
 import junit.framework.Assert;
 import net.ypetit.Result.ResultType;
 
+import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.junit.After;
@@ -24,13 +25,31 @@ import org.junit.Test;
  */
 public class CompareTest {
 
+    /**
+     * Logger.
+     */
+    private static final Logger LOGGER = Logger.getLogger(CompareTest.class);
+
+    /**
+     * valid source file.
+     */
     private static File beforeFile;
+    /**
+     * unknown source file.
+     */
     private static File unknownFile;
+    /**
+     * not well formed source file.
+     */
     private static File notXMLFile;
+    /**
+     * not applicable xml file.
+     */
     private static File otherFile;
 
     /**
-     * @throws java.lang.Exception
+     * @throws Exception
+     *             exception.
      */
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -66,47 +85,91 @@ public class CompareTest {
     }
 
     @Test
-    public void loadFile() {
+    public void loadFile() throws Exception {
+        CompareTest.LOGGER.info("UNIT TEST : loadFile()");
         // Load an existing XML file to Document structure
         Document document = Compare.loadFile(CompareTest.beforeFile);
         Assert.assertNotNull(document);
+    }
 
+    @Test(expected = Exception.class)
+    public void loadUnknownFile() throws Exception {
+        CompareTest.LOGGER.info("UNIT TEST : loadUnknownFile()");
         // Load a not existing file
-        document = Compare.loadFile(CompareTest.unknownFile);
-        Assert.assertNull(document);
-
-        // Load not XML file
-        document = Compare.loadFile(CompareTest.notXMLFile);
+        Document document = Compare.loadFile(CompareTest.unknownFile);
         Assert.assertNull(document);
     }
 
+    @Test(expected = Exception.class)
+    public void loadMalformedFile() throws Exception {
+        CompareTest.LOGGER.info("UNIT TEST : loadMalformedFile()");
+        // Load not XML file
+        Document document = Compare.loadFile(CompareTest.notXMLFile);
+        Assert.assertNull(document);
+    }
+
+    /**
+     * Normal test case for extractData.
+     * 
+     * @throws Exception
+     */
     @Test
-    public void extractData() {
-        List<Element> elements = null;
-        // extract elements of type tree/file
-        elements = Compare
-                .extractData(Compare.loadFile(CompareTest.beforeFile));
+    public final void extractData() throws Exception {
+        CompareTest.LOGGER.info("UNIT TEST : extractData()");
+        // Prepare test
+        // TODO mock loadFile method
+        List<Element> elements = Compare.extractData(Compare
+                .loadFile(CompareTest.beforeFile));
         Assert.assertNotNull(elements);
         Assert.assertEquals(4, elements.size());
+    }
 
-        // xml document not containing tree or file
-        elements = Compare.extractData(Compare.loadFile(CompareTest.otherFile));
+    /**
+     * XML document not containing tree or file
+     * 
+     * @throws Exception
+     */
+    @Test
+    public final void extractDataMalformed() throws Exception {
+        CompareTest.LOGGER.info("UNIT TEST : extractDataMalformed()");
+        // Prepare test
+        // TODO mock loadFile method
+        List<Element> elements = Compare.extractData(Compare
+                .loadFile(CompareTest.otherFile));
         Assert.assertNotNull(elements);
         Assert.assertEquals(0, elements.size());
+    }
 
-        // empty document
-        elements = Compare.extractData(new Document());
+    /**
+     * Empty document test case.
+     * 
+     * @throws Exception
+     */
+    @Test(expected = Exception.class)
+    public final void extractDataEmpty() throws Exception {
+        CompareTest.LOGGER.info("UNIT TEST : extractDataEmpty()");
+        // Prepare test
+        List<Element> elements = Compare.extractData(new Document());
         Assert.assertNull(elements);
+    }
 
-        // null document
-        final Document nullDocument = null;
-        elements = Compare.extractData(nullDocument);
+    /**
+     * Null document test case.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public final void extractDataNull() throws Exception {
+        CompareTest.LOGGER.info("UNIT TEST : extractDataNull()");
+        // Prepare test
+        List<Element> elements = Compare.extractData(null);
         Assert.assertNull(elements);
     }
 
     @Test
-    public void asMap() {
-        // TODO mock getFullPath method
+    public final void asMap() {
+        CompareTest.LOGGER.info("UNIT TEST : asMap()");
+        // Prepare test
         final List<Element> elementsList = new ArrayList<Element>();
         elementsList.add(new Element("tree").setAttribute("name", "home"));
         elementsList.add(new Element("file").setAttribute("name", "a.txt")
@@ -119,14 +182,28 @@ public class CompareTest {
         // of same name will result in different map entries as the key would be
         // based on ancestors name attribute.
         Assert.assertEquals(3, elementsMap.size());
+    }
+
+    @Test
+    public final void asMapNull() {
+        CompareTest.LOGGER.info("UNIT TEST : asMapNull()");
+        // Prepare test
+        final List<Element> elementsList = new ArrayList<Element>();
+        elementsList.add(new Element("tree").setAttribute("name", "home"));
+        elementsList.add(new Element("file").setAttribute("name", "a.txt")
+                .setAttribute("hash", "0123456789abcdef0"));
+        elementsList.add(new Element("file").setAttribute("name", "b.txt")
+                .setAttribute("hash", "0123456789abcdef1"));
+        Map<String, Element>
         // Convert a null list
         elementsMap = Compare.asMap(null);
         Assert.assertNull(elementsMap);
     }
 
     @Test
-    public void getFullPath() {
-        // Initialize some elements
+    public final void getFullPath() {
+        CompareTest.LOGGER.info("UNIT TEST : getFullPath()");
+        // Prepare test
         final Element elementA = new Element("file").setAttribute("name",
                 "a.txt").setAttribute("hash", "0123456789abcdef0");
         final Element elementB = new Element("file").setAttribute("name",
@@ -139,15 +216,29 @@ public class CompareTest {
         String resultKey = Compare.getFullPath(elementB);
         Assert.assertNotNull(resultKey);
         Assert.assertEquals("home/b.txt", resultKey);
+    }
 
+    @Test
+    public final void getFullPathNull() {
+        CompareTest.LOGGER.info("UNIT TEST : getFullPathNull()");
+        // Prepare test
+        final Element elementA = new Element("file").setAttribute("name",
+                "a.txt").setAttribute("hash", "0123456789abcdef0");
+        final Element elementB = new Element("file").setAttribute("name",
+                "b.txt").setAttribute("hash", "0123456789abcdef1");
+        final Element elementHome = new Element("tree").setAttribute("name",
+                "home");
+        elementHome.addContent(elementA).addContent(elementB);
         // Extract from null String
-        resultKey = Compare.getFullPath(null);
+        String resultKey = Compare.getFullPath(null);
         Assert.assertNull(resultKey);
     }
 
     @Test
     public void asHashMap() {
-        Map<String, Result> results = new HashMap<String, Result>();
+        CompareTest.LOGGER.info("UNIT TEST : asHashMap()");
+        // Prepare test
+        final Map<String, Result> results = new HashMap<String, Result>();
         final Element elementA = new Element("file").setAttribute("name",
                 "a.txt").setAttribute("hash", "0123456789abcdef0");
         final Element elementB = new Element("file").setAttribute("name",
@@ -159,7 +250,7 @@ public class CompareTest {
                 null, elementB));
         results.put("home/a.txt", new Result(ResultType.DELETED, "home/a.txt",
                 elementA, null));
-        Map<ResultType, Map<String, Element>> result = Compare
+        final Map<ResultType, Map<String, Element>> result = Compare
                 .asHashMap(results);
         Assert.assertNotNull(result);
         Assert.assertEquals(2, result.size());
@@ -177,6 +268,7 @@ public class CompareTest {
 
     @Test
     public void findDifferencesAdded() {
+        CompareTest.LOGGER.info("UNIT TEST : findDifferencesAdded()");
         // Initialize some elements
         final Element elementA = new Element("file")
                 .setAttribute("name", "a.txt").setAttribute("size", "5032")
@@ -196,7 +288,8 @@ public class CompareTest {
         output.put("home", elementHome);
         output.put("home/a.txt", elementA);
         output.put("home/b.txt", elementB);
-        Map<String, Result> results = Compare.findDifferences(input, output);
+        final Map<String, Result> results = Compare.findDifferences(input,
+                output);
         // assertions on resulting object
         Assert.assertNotNull(results);
         Assert.assertEquals(1, results.size());
@@ -206,11 +299,12 @@ public class CompareTest {
         Assert.assertEquals("home/b.txt", results.get("home/b.txt").getPath());
         Assert.assertNull(results.get("home/b.txt").getSource());
         Assert.assertNotNull(results.get("home/b.txt").getTarget());
-        System.out.println(results);
+        CompareTest.LOGGER.info(results);
     }
 
     @Test
     public void findDifferencesDeleted() {
+        CompareTest.LOGGER.info("UNIT TEST : findDifferencesDeleted()");
         // Initialize some elements
         final Element elementA = new Element("file")
                 .setAttribute("name", "a.txt").setAttribute("size", "5032")
@@ -230,7 +324,8 @@ public class CompareTest {
         final Map<String, Element> output = new HashMap<String, Element>();
         output.put("home", elementHome);
         output.put("home/a.txt", elementA);
-        Map<String, Result> results = Compare.findDifferences(input, output);
+        final Map<String, Result> results = Compare.findDifferences(input,
+                output);
         // assertions on resulting object
         Assert.assertNotNull(results);
         Assert.assertEquals(1, results.size());
@@ -240,11 +335,12 @@ public class CompareTest {
         Assert.assertEquals("home/b.txt", results.get("home/b.txt").getPath());
         Assert.assertNotNull(results.get("home/b.txt").getSource());
         Assert.assertNull(results.get("home/b.txt").getTarget());
-        System.out.println(results);
+        CompareTest.LOGGER.info(results);
     }
 
     @Test
     public void findDifferencesModified() {
+        CompareTest.LOGGER.info("UNIT TEST : findDifferencesModified()");
         // Initialize some elements
         final Element elementA = new Element("file")
                 .setAttribute("name", "a.txt").setAttribute("size", "5032")
@@ -271,7 +367,8 @@ public class CompareTest {
         output.put("home", elementHome);
         output.put("home/a.txt", elementA2);
         output.put("home/b.txt", elementB2);
-        Map<String, Result> results = Compare.findDifferences(input, output);
+        final Map<String, Result> results = Compare.findDifferences(input,
+                output);
         // assertions on resulting object
         Assert.assertNotNull(results);
         Assert.assertEquals(2, results.size());
@@ -287,11 +384,12 @@ public class CompareTest {
         Assert.assertEquals("home/a.txt", results.get("home/a.txt").getPath());
         Assert.assertNotNull(results.get("home/a.txt").getSource());
         Assert.assertNotNull(results.get("home/a.txt").getTarget());
-        System.out.println(results);
+        CompareTest.LOGGER.info(results);
     }
 
     @Test
     public void findDifferencesRenamed() {
+        CompareTest.LOGGER.info("UNIT TEST : findDifferencesRenamed()");
         // Initialize some elements
         final Element elementA = new Element("file")
                 .setAttribute("name", "a.txt")
@@ -314,7 +412,8 @@ public class CompareTest {
         final Map<String, Element> output = new HashMap<String, Element>();
         output.put("home", elementHome);
         output.put("home/b.txt", elementB);
-        Map<String, Result> results = Compare.findDifferences(input, output);
+        final Map<String, Result> results = Compare.findDifferences(input,
+                output);
         // assertions on resulting object
         Assert.assertNotNull(results);
         Assert.assertEquals(1, results.size());
@@ -328,6 +427,6 @@ public class CompareTest {
                 Compare.getFullPath(results.get("home/a.txt").getSource()));
         Assert.assertEquals("home/b.txt",
                 Compare.getFullPath(results.get("home/a.txt").getTarget()));
-        System.out.println(results);
+        CompareTest.LOGGER.debug(results);
     }
 }
